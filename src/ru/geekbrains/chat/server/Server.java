@@ -1,14 +1,19 @@
 package ru.geekbrains.chat.server;
 
 import ru.geekbrains.chat.AuthException;
+import ru.geekbrains.chat.server.persistance.UserRepository;
+import ru.geekbrains.chat.server.persistance.UserRepositoryImpl;
+import ru.geekbrains.chat.server.service.auth.AuthJDBCServiceImpl;
 import ru.geekbrains.chat.server.service.auth.AuthService;
-import ru.geekbrains.chat.server.service.auth.AuthServiceImpl;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,13 +22,21 @@ import static ru.geekbrains.chat.MessagesPatterns.*;
 
 public class Server {
 
-    public static void main(String[] args) {
-        new Server().startServer(7777);
+    public static void main(String[] args) throws ClassNotFoundException, SQLException {
+        Class.forName("org.sqlite.JDBC");
+
+        Connection conn = DriverManager.getConnection("jdbc:sqlite:network-chat.db");
+
+        new Server(conn).startServer(7777);
     }
 
+    public Server(Connection connection) {
+        UserRepository repository = new UserRepositoryImpl(connection);
+        this.authService = new AuthJDBCServiceImpl(repository);
+    }
 
     private boolean isOnline;
-    private AuthService authService = new AuthServiceImpl();
+    private AuthService authService;
 
     private Map<String, ClientHandler> clientHandlers = Collections.synchronizedMap(new HashMap<>());
 

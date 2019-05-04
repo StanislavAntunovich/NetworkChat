@@ -3,5 +3,5 @@ package ru.geekbrains.chat.server.service.auth;
 import ru.geekbrains.chat.server.User;
 
 public interface AuthService {
-    boolean isAuthorized(User user);
+    boolean isAuthorized(User userCandidate);
 }

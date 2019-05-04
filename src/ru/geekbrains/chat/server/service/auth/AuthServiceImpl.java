@@ -17,8 +17,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public boolean isAuthorized(User user) {
-        String pwd = users.get(user.getLogin());
-        return pwd != null && pwd.equals(user.getPassword());
+    public boolean isAuthorized(User userCandidate) {
+        String pwd = users.get(userCandidate.getLogin());
+        return pwd != null && pwd.equals(userCandidate.getPassword());
     }
 }
