@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<fx:root type="javafx.scene.control.ListCell" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml">
+    <graphic>
+        <VBox fx:id="messageCell">
+            <HBox fx:id="messageCellTop" spacing="10">
+                <Label fx:id="labelTimeStamp"/>
+                <Label fx:id="labelUser"/>
+            </HBox>
+            <TextArea fx:id="txtMessage"
+                      editable="false"
+                      minWidth="10"
+                      prefWidth="180"
+                      prefHeight="10"
+                      VBox.vgrow="ALWAYS"
+                      HBox.hgrow="ALWAYS"
+                      wrapText="true"/>
+        </VBox>
+    </graphic>
+</fx:root>

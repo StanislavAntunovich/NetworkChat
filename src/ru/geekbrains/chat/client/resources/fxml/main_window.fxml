@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+<VBox id="main-window"
+      fx:id="mainLayout"
+      xmlns:fx="http://javafx.com/fxml/1"
+      xmlns="http://javafx.com/javafx/2.2"
+      fx:controller="ru.geekbrains.lesson4.client.Controller">
+
+    <VBox fx:id="panelMessages" VBox.vgrow="ALWAYS">
+
+        <HBox maxWidth="Infinity" minWidth="300" maxHeight="Infinity" VBox.vgrow="ALWAYS">
+
+            <ListView fx:id="listMessages" HBox.hgrow="ALWAYS" minWidth="200" maxWidth="Infinity"/>
+            <ListView fx:id="usersOnLine" minWidth="100" HBox.hgrow="ALWAYS" maxWidth="300"/>
+        </HBox>
+            <HBox id="bottom-box"
+                  spacing="5.0">
+
+                <TextField fx:id="txtMessageInput"
+                           promptText="Введите сообщение"
+                           HBox.hgrow="ALWAYS"/>
+
+                <Button fx:id="bttnSendMessage"
+                        text="Отправить"/>
+            </HBox>
+
+    </VBox>
+
+    <VBox fx:id="panelLogin" minWidth="380" minHeight="380">
+        <HBox>
+            <Label text="Login"/>
+            <TextField fx:id="txtLogin"/>
+
+        </HBox>
+        <HBox>
+            <Label text="Password"/>
+            <PasswordField fx:id="txtPassword"/>
+        </HBox>
+        <HBox>
+            <Button fx:id="bttnOk" text="Ok"/>
+            <Button fx:id="bttnCancel" text="Cancel"/>
+        </HBox>
+
+    </VBox>
+
+
+    <stylesheets>
+        <URL value="@../css/styles.css"/>
+    </stylesheets>
+
+</VBox>

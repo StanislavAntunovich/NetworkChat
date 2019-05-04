@@ -1,0 +1,7 @@
+#main-window {
+    -fx-padding: 5;
+}
+
+#bottom-box {
+    -fx-padding: 5 0 0 0;
+}
