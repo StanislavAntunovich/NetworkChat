@@ -40,11 +40,14 @@ public class Network {
             while (true) {
                 try {
                     String msg = in.readUTF();
+                    System.out.println("income msg: " + msg);
                     if (msg.startsWith("/"))
                         handleServerCommand(msg);
                     else {
                         String[] splitedMsg = msg.split(">", 2);
-                        incomeMessageHandler.handleMessage(splitedMsg[0], splitedMsg[1]);
+                        if (!splitedMsg[0].equals(login)) {
+                            incomeMessageHandler.handleMessage(splitedMsg[0], splitedMsg[1]);
+                        }
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -103,6 +106,7 @@ public class Network {
             } else {
                 out.writeUTF(message);
             }
+            incomeMessageHandler.handleMessage("Вы", message);
         } catch (IOException e) {
             e.printStackTrace();
         }

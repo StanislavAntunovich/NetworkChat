@@ -1,6 +1,6 @@
 package ru.geekbrains.chat.server.service.auth;
 
-import ru.geekbrains.server.User;
+import ru.geekbrains.chat.server.User;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -33,7 +33,6 @@ public class Server {
         ClientHandler fromCli = clientHandlers.get(from);
         if (toCli != null) {
             toCli.sendMessage(String.format(MESSAGE_PATTERN, from, message));
-            fromCli.sendMessage(String.format(MESSAGE_PATTERN, from, message));
         } else {
             fromCli.sendMessage(String.format(USER_OFFLINE_PATTERN, to));
         }
