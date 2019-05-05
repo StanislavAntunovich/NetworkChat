@@ -38,7 +38,10 @@ public class Controller implements IncomeMessageHandler {
     private VBox panelMessages;
 
     @FXML
-    private Button bttnOk;
+    private Button bttnLogIn;
+
+    @FXML
+    private Button bttnSignUp;
 
     @FXML
     private Button bttnCancel;
@@ -71,8 +74,9 @@ public class Controller implements IncomeMessageHandler {
 
         bttnSendMessage.setOnAction(this::sendMessage);
         txtMessageInput.setOnAction(this::sendMessage);
-        bttnOk.setOnAction(this::okBttnCLicked);
-        txtPassword.setOnAction(this::okBttnCLicked);
+        bttnLogIn.setOnAction(this::okBttnCLicked);
+        bttnSignUp.setOnAction(this::okBttnCLicked);
+//        txtPassword.setOnAction(this::okBttnCLicked);
         bttnCancel.setOnAction(this::cancelBttnClicked);
 
         setAuthorized(false);
@@ -102,10 +106,9 @@ public class Controller implements IncomeMessageHandler {
         panelMessages.setManaged(isAuthorized);
     }
 
-    public boolean authorize(String login, String password) {
+    public boolean authorize(String login, String password, String action) {
         try {
-            //TODO:
-            network.authorize(login, password);
+            network.authorize(login, password, action);
         } catch (AuthException e) {
             showError("Authorization ERROR", e.getMessage());
             return false;
@@ -113,7 +116,6 @@ public class Controller implements IncomeMessageHandler {
             e.printStackTrace();
             return false;
         }
-
         return true;
     }
 
@@ -128,7 +130,9 @@ public class Controller implements IncomeMessageHandler {
             String login = txtLogin.getText();
             String password = txtPassword.getText();
 
-            setAuthorized(authorize(login, password));
+            String action = ((Button) event.getTarget()).getText();
+
+            setAuthorized(authorize(login, password, action));
 
             network.requestOnlineUsersList();
 

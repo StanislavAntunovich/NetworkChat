@@ -21,4 +21,13 @@ public class AuthServiceImpl implements AuthService {
         String pwd = users.get(userCandidate.getLogin());
         return pwd != null && pwd.equals(userCandidate.getPassword());
     }
+
+    @Override
+    public boolean addNewUser(User userCandidate) {
+        if (users.containsKey(userCandidate.getLogin())) {
+            return false;
+        }
+        users.put(userCandidate.getLogin(), userCandidate.getPassword());
+        return true;
+    }
 }

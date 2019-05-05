@@ -15,4 +15,13 @@ public class AuthJDBCServiceImpl implements AuthService {
         User user = repository.findUserByLogin(userCandidate.getLogin());
         return user != null && user.getPassword().equals(userCandidate.getPassword());
     }
+
+    @Override
+    public boolean addNewUser(User userCandidate) {
+        if (repository.findUserByLogin(userCandidate.getLogin()) != null) {
+            return false;
+        }
+        repository.addUser(userCandidate);
+        return true;
+    }
 }

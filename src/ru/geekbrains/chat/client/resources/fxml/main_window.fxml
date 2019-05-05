@@ -40,7 +40,8 @@
             <PasswordField fx:id="txtPassword"/>
         </HBox>
         <HBox>
-            <Button fx:id="bttnOk" text="Ok"/>
+            <Button fx:id="bttnSignUp" text="Sign Up"/>
+            <Button fx:id="bttnLogIn" text="Log In"/>
             <Button fx:id="bttnCancel" text="Cancel"/>
         </HBox>
 

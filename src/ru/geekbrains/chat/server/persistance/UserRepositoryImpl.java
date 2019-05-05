@@ -62,7 +62,6 @@ public class UserRepositoryImpl implements UserRepository<User, String> {
                     "('Margarita', 'qwerty001'), " +
                     "('Begemot', 'qwerty003')");
         } catch (SQLException e) {
-            System.out.println("база данных уже есть");
         }
 
     }

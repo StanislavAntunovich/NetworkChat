@@ -66,8 +66,8 @@ public class Server {
 
                 String authMessage = in.readUTF();
                 try {
-                    User user = checkAuthentication(authMessage);
-                    out.writeUTF("/auth succeeded");
+                    User user = handshake(authMessage);
+                    out.writeUTF("/succeeded");
                     this.subscribe(user.getLogin(), new ClientHandlerImpl(user.getLogin(), candidateSocket, this));
 
                 } catch (AuthException e) {
@@ -82,12 +82,32 @@ public class Server {
         }
     }
 
-    private User checkAuthentication(String authMessage) throws AuthException {
-        String[] authParts = authMessage.split(" ");
-        if (!authParts[0].equals("/auth") || authParts.length != 3) {
-            throw new AuthException("Wrong auth message");
+    //TODO перемудрил - разгрести
+    private User handshake(String message) throws AuthException {
+        final String[] preparedMsg = message.split(" ");
+        if (preparedMsg.length != 3) {
+            throw new AuthException("Wrong message");  //TODO объединить
         }
-        User user = new User(authParts[1], authParts[2]);
+
+        if (preparedMsg[0].equals("/auth")) {
+            return checkAuthentication(preparedMsg);
+        } else if (preparedMsg[0].equals("/registration")) {
+            return registration(preparedMsg);
+        } else {
+            throw new AuthException("Wrong message");
+        }
+    }
+
+    private User registration(String[] message) throws AuthException {
+        User user = new User(message[1], message[2]);
+        if (!authService.addNewUser(user)) {
+            throw new AuthException("Login busy");
+        }
+        return user;
+    }
+
+    private User checkAuthentication(String[] authMessage) throws AuthException {
+        User user = new User(authMessage[1], authMessage[2]);
         if (!authService.isAuthorized(user)) {
             throw new AuthException("Wrong login or password");
         }

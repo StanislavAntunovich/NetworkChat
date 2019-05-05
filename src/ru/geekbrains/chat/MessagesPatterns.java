@@ -2,6 +2,7 @@ package ru.geekbrains.chat;
 
 public class MessagesPatterns {
     public static final String AUTH_MESSAGE = "/auth %s %s";
+    public static final String REGISTRATION_MESSAGE = "/registration %s %s";
     public static final String ADDRESSED_MESSAGE_PATTERN = "/w %s %s";
     public static final String INCOME_MESSAGE = "%s: %s\n";
     public static final String MESSAGE_PATTERN = "%s>%s";

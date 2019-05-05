@@ -76,17 +76,28 @@ public class Network {
         }
     }
 
-    public void authorize(String login, String password) throws IOException, AuthException {
+    public void authorize(String login, String password, String action) throws IOException, AuthException {
 
+        String message;
+        switch (action) {
+            case "Sign Up":
+                message = String.format(REGISTRATION_MESSAGE, login, password);
+                break;
+            case "Log In":
+                message = String.format(AUTH_MESSAGE, login, password);
+                break;
+            default:
+                throw new IllegalArgumentException(action);
+        }
         try {
-            out.writeUTF(String.format(AUTH_MESSAGE, login, password));
+            out.writeUTF(message);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         String authResponse = in.readUTF();
 
-        if (authResponse.equals("/auth succeeded")) {
+        if (authResponse.equals("/succeeded")) {
             this.login = login;
             Platform.runLater(() -> receiverThread.start());
             receiverThread.setDaemon(true);
@@ -94,6 +105,7 @@ public class Network {
             throw new AuthException(authResponse.split(" ", 2)[1]);
         }
     }
+
 
     public void requestOnlineUsersList() throws IOException {
         out.writeUTF(REQUEST_ONLINE_USERS);
