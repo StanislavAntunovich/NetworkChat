@@ -12,8 +12,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,16 +20,8 @@ import static ru.geekbrains.chat.MessagesPatterns.*;
 
 public class Server {
 
-    public static void main(String[] args) throws ClassNotFoundException, SQLException {
-        Class.forName("org.sqlite.JDBC");
-
-        Connection conn = DriverManager.getConnection("jdbc:sqlite:network-chat.db");
-
-        new Server(conn).startServer(7777);
-    }
-
     public Server(Connection connection) {
-        UserRepository repository = new UserRepositoryImpl(connection);
+        UserRepository<User, String> repository = new UserRepositoryImpl(connection);
         this.authService = new AuthJDBCServiceImpl(repository);
     }
 

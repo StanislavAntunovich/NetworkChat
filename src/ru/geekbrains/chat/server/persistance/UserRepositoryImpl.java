@@ -6,8 +6,9 @@ import java.sql.*;
 import java.util.List;
 
 public class UserRepositoryImpl implements UserRepository<User, String> {
+
     private static final String findUserByIdRequest = "SELECT login, password FROM users WHERE login = ?;";
-    public static final String addUserRequest = "INSERT into users(login, password) values (?, ?);";
+    private static final String addUserRequest = "INSERT into users(login, password) values (?, ?);";
 
     private final Connection connection;
 
@@ -23,7 +24,9 @@ public class UserRepositoryImpl implements UserRepository<User, String> {
             PreparedStatement statement = connection.prepareStatement(findUserByIdRequest);
             statement.setString(1, login);
             ResultSet resultSet = statement.executeQuery();
-            user = new User(resultSet.getString(1), resultSet.getString(2));
+            if (resultSet.next()) {
+                user = new User(resultSet.getString(1), resultSet.getString(2));
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -32,8 +35,7 @@ public class UserRepositoryImpl implements UserRepository<User, String> {
 
     @Override
     public void addUser(User user) {
-        try {
-            PreparedStatement statement = connection.prepareStatement(addUserRequest);
+        try (PreparedStatement statement = connection.prepareStatement(addUserRequest)) {
             statement.setString(1, user.getLogin());
             statement.setString(2, user.getPassword());
             statement.execute();
@@ -49,8 +51,7 @@ public class UserRepositoryImpl implements UserRepository<User, String> {
     }
 
     private void initDB() {
-        try {
-            Statement statement = connection.createStatement();
+        try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE table users(" +
                     "id integer primary key autoincrement," +
                     "login varchar(50) unique," +
@@ -60,7 +61,6 @@ public class UserRepositoryImpl implements UserRepository<User, String> {
                     "('Master', 'ADDQD'), " +
                     "('Margarita', 'qwerty001'), " +
                     "('Begemot', 'qwerty003')");
-            statement.close();
         } catch (SQLException e) {
             System.out.println("база данных уже есть");
         }
