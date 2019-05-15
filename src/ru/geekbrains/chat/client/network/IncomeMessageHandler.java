@@ -1,9 +1,11 @@
 package ru.geekbrains.chat.client.network;
 
+import ru.geekbrains.chat.client.Message;
+
 import java.util.List;
 
 public interface IncomeMessageHandler {
-    void handleMessage(String from, String message);
+    void handleMessage(Message message);
 
     void addOnlineUser(String userName);
 

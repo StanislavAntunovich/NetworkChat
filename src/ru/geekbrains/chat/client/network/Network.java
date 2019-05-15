@@ -2,6 +2,9 @@ package ru.geekbrains.chat.client.network;
 
 import javafx.application.Platform;
 import ru.geekbrains.chat.AuthException;
+import ru.geekbrains.chat.client.Message;
+import ru.geekbrains.chat.client.history.ChatHistory;
+import ru.geekbrains.chat.client.history.ChatHistoryImpl;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -10,6 +13,7 @@ import java.net.Socket;
 import java.util.Arrays;
 
 import static ru.geekbrains.chat.MessagesPatterns.*;
+import static ru.geekbrains.chat.client.Controller.MESSAGES_TO_SHOW_COUNT;
 
 public class Network {
 
@@ -24,6 +28,8 @@ public class Network {
 
     private final int port;
     private String login;
+
+    private ChatHistory<Message> history;
 
 
     public Network(String host, int port) throws IOException {
@@ -40,13 +46,14 @@ public class Network {
             while (true) {
                 try {
                     String msg = in.readUTF();
-                    System.out.println("income msg: " + msg);
                     if (msg.startsWith("/"))
                         handleServerCommand(msg);
                     else {
                         String[] splitedMsg = msg.split(">", 2);
                         if (!splitedMsg[0].equals(login)) {
-                            incomeMessageHandler.handleMessage(splitedMsg[0], splitedMsg[1]);
+                            Message message = new Message(splitedMsg[0], splitedMsg[1]);
+                            history.logMessage(message);
+                            incomeMessageHandler.handleMessage(message);
                         }
                     }
                 } catch (IOException e) {
@@ -99,6 +106,10 @@ public class Network {
 
         if (authResponse.equals("/succeeded")) {
             this.login = login;
+            this.history = new ChatHistoryImpl(login);
+            for (Message msg : history.getLastMessages(MESSAGES_TO_SHOW_COUNT)) {
+                incomeMessageHandler.handleMessage(msg);
+            }
             Platform.runLater(() -> receiverThread.start());
             receiverThread.setDaemon(true);
         } else {
@@ -118,7 +129,9 @@ public class Network {
             } else {
                 out.writeUTF(message);
             }
-            incomeMessageHandler.handleMessage("Вы", message);
+            Message msg = new Message(login, message);
+            history.logMessage(msg);
+            incomeMessageHandler.handleMessage(msg);
         } catch (IOException e) {
             e.printStackTrace();
         }

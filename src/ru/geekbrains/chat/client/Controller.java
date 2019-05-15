@@ -22,6 +22,8 @@ public class Controller implements IncomeMessageHandler {
     private Network network;
     private boolean isAuthorized;
 
+    public static int MESSAGES_TO_SHOW_COUNT = 100;  // предполагаем, что это можно будет менять в настройках
+
     @FXML
     private ListView<Message> listMessages;
 
@@ -109,6 +111,8 @@ public class Controller implements IncomeMessageHandler {
     public boolean authorize(String login, String password, String action) {
         try {
             network.authorize(login, password, action);
+
+
         } catch (AuthException e) {
             showError("Authorization ERROR", e.getMessage());
             return false;
@@ -160,10 +164,12 @@ public class Controller implements IncomeMessageHandler {
     }
 
     @Override
-    public void handleMessage(String from, String message) {
-        final String messageFrom = from.equals(network.getLogin()) ? "Вы" : from;
+    public void handleMessage(Message message) {
+        if (message.getUser().equals(network.getLogin())) {
+            message.setUser("Вы");
+        }
         Platform.runLater(() -> {
-            messages.add(new Message(messageFrom, message));
+            messages.add(message);
             listMessages.scrollTo(messages.size()-1);
         });
     }

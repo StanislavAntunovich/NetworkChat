@@ -3,6 +3,7 @@ package ru.geekbrains.chat.client;
 import java.time.LocalDateTime;
 
 public class Message {
+
     private LocalDateTime created;
     private String user;
     private String messageText;
@@ -15,6 +16,12 @@ public class Message {
         this.user = user;
         this.messageText = messageText;
         created = LocalDateTime.now();
+    }
+
+    public Message(LocalDateTime created, String user, String messageText) {
+        this.created = created;
+        this.user = user;
+        this.messageText = messageText;
     }
 
     public LocalDateTime getCreated() {

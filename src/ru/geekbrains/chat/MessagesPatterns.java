@@ -18,5 +18,7 @@ public class MessagesPatterns {
     public static final String USERS_LIST_COMMAND = "/users_list";
     public static final String USERS_LIST_PATTERN = USERS_LIST_COMMAND + " %s";
 
+    public static String HISTORY_FILENAME_PATTERN = "%s_history.txt";
+
 
 }
