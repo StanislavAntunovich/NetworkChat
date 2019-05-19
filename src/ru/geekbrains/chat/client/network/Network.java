@@ -70,7 +70,9 @@ public class Network {
         String command = preparedMsg[0];
         //TODO: поменять на switch
         if (preparedMsg[0].equals(USERS_LIST_COMMAND)) {
-            incomeMessageHandler.setOnlineUsersList(Arrays.asList(preparedMsg[1].split(" ")));
+            if (!preparedMsg[1].isEmpty()) {
+                incomeMessageHandler.setOnlineUsersList(Arrays.asList(preparedMsg[1].trim().split(" ")));
+            }
             return;
         }
         if (command.equals(USER_CAME_OFLINE_COMMAND)) {

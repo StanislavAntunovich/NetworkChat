@@ -15,20 +15,31 @@ import java.sql.Connection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import static ru.geekbrains.chat.MessagesPatterns.*;
 
 public class Server {
+    private static final int PULL_SIZE = 1000;
+
+    private boolean isOnline;
+    private AuthService authService;
+    private ExecutorService executorService;
+
+    private Map<String, ClientHandler> clientHandlers = Collections.synchronizedMap(new HashMap<>());
 
     public Server(Connection connection) {
         UserRepository<User, String> repository = new UserRepositoryImpl(connection);
         this.authService = new AuthJDBCServiceImpl(repository);
+
+        // не снимет ли фабрика приимущество перед использованием обычного создания потоков?
+        executorService = Executors.newFixedThreadPool(PULL_SIZE , runnable -> {
+            Thread thread = Executors.defaultThreadFactory().newThread(runnable);
+            thread.setDaemon(true);
+            return thread;
+        });
     }
-
-    private boolean isOnline;
-    private AuthService authService;
-
-    private Map<String, ClientHandler> clientHandlers = Collections.synchronizedMap(new HashMap<>());
 
     //TODO: refactor
     public void sendAddressedMessage(String from, String to, String message) {
@@ -47,6 +58,7 @@ public class Server {
     }
 
     public void subscribe(String login, ClientHandler clientHandler) {
+        executorService.execute(clientHandler::startHandling);
         userCameOnline(login);
         clientHandlers.put(login, clientHandler);
     }
