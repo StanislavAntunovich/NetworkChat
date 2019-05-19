@@ -27,7 +27,7 @@ public class ChatHistoryImpl implements ChatHistory<Message> {
     }
 
     @Override
-    public void logMessage(Message message) {
+    public synchronized void logMessage(Message message) {
         writer.println(stringFromMessage(message));
     }
 
