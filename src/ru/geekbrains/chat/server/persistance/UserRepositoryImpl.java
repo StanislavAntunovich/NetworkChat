@@ -52,15 +52,11 @@ public class UserRepositoryImpl implements UserRepository<User, String> {
 
     private void initDB() {
         try (Statement statement = connection.createStatement()) {
-            statement.execute("CREATE table users(" +
+            statement.execute("CREATE table  if not exists users(" +
                     "id integer primary key autoincrement," +
                     "login varchar(50) unique," +
                     "password varchar(50)" +
                     ");");
-            statement.execute("insert into users(login, password) values " +
-                    "('Master', 'ADDQD'), " +
-                    "('Margarita', 'qwerty001'), " +
-                    "('Begemot', 'qwerty003')");
         } catch (SQLException e) {
         }
 
