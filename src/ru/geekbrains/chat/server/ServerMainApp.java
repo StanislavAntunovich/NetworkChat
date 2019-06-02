@@ -11,6 +11,6 @@ public class ServerMainApp {
 
         Connection conn = DriverManager.getConnection("jdbc:sqlite:network-chat.db");
 
-        new Server(conn).startServer(7777);
+        new Server(conn, User.class).startServer(7777);
     }
 }

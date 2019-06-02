@@ -1,8 +1,8 @@
 package ru.geekbrains.chat.server;
 
 import ru.geekbrains.chat.AuthException;
+import ru.geekbrains.chat.server.persistance.UserRepoReflectionImpl;
 import ru.geekbrains.chat.server.persistance.UserRepository;
-import ru.geekbrains.chat.server.persistance.UserRepositoryImpl;
 import ru.geekbrains.chat.server.service.auth.AuthJDBCServiceImpl;
 import ru.geekbrains.chat.server.service.auth.AuthService;
 
@@ -31,8 +31,8 @@ public class Server {
 
     private Map<String, ClientHandler> clientHandlers = Collections.synchronizedMap(new HashMap<>());
 
-    public Server(Connection connection) {
-        UserRepository<User, String> repository = new UserRepositoryImpl(connection);
+    public Server(Connection connection, Class userClass) {
+        UserRepository<Integer, User> repository = new UserRepoReflectionImpl(connection, userClass);
         this.authService = new AuthJDBCServiceImpl(repository);
 
         executorService = Executors.newFixedThreadPool(
