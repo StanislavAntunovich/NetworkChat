@@ -17,11 +17,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 import static ru.geekbrains.chat.MessagesPatterns.*;
 
 public class Server {
     private static final int PULL_SIZE = 1000;
+    static final Logger logger = Logger.getLogger(Server.class.getName());
 
     private boolean isOnline;
     private AuthService authService;
@@ -33,16 +35,17 @@ public class Server {
         UserRepository<User, String> repository = new UserRepositoryImpl(connection);
         this.authService = new AuthJDBCServiceImpl(repository);
 
-        // не снимет ли фабрика приимущество перед использованием обычного создания потоков?
-        executorService = Executors.newFixedThreadPool(PULL_SIZE , runnable -> {
-            Thread thread = Executors.defaultThreadFactory().newThread(runnable);
-            thread.setDaemon(true);
-            return thread;
-        });
+        executorService = Executors.newFixedThreadPool(
+                PULL_SIZE, runnable -> {
+                    Thread thread = Executors.defaultThreadFactory().newThread(runnable);
+                    thread.setDaemon(true);
+                    return thread;
+                });
     }
 
     //TODO: refactor
     public void sendAddressedMessage(String from, String to, String message) {
+        logger.info(String.format("Клиент %s отправил %s сообщение \"%s\"", from, to, message));
         ClientHandler toCli = clientHandlers.getOrDefault(to, null);
         ClientHandler fromCli = clientHandlers.get(from);
         if (toCli != null) {
@@ -58,12 +61,16 @@ public class Server {
     }
 
     public void subscribe(String login, ClientHandler clientHandler) {
+        logger.info(String.format("Клиент %s подключился", login));
+
         executorService.execute(clientHandler::startHandling);
         userCameOnline(login);
         clientHandlers.put(login, clientHandler);
     }
 
     public void unSubscribe(String login) {
+        logger.info(String.format("Клиент %s отключился", login));
+
         clientHandlers.remove(login);
         userCameOffline(login);
     }
@@ -71,6 +78,7 @@ public class Server {
     public void startServer(int port) {
         isOnline = true;
         try (ServerSocket serverSocket = new ServerSocket(port)) {
+            logger.info("Сервер запущен");
             while (isOnline) {
                 Socket candidateSocket = serverSocket.accept();
                 DataOutputStream out = new DataOutputStream(candidateSocket.getOutputStream());
@@ -83,20 +91,21 @@ public class Server {
                     this.subscribe(user.getLogin(), new ClientHandlerImpl(user.getLogin(), candidateSocket, this));
 
                 } catch (AuthException e) {
-                    e.printStackTrace();
+                    logger.warning("Ошибка аутентификации: " + e.getMessage());
                     out.writeUTF("/error " + e.getMessage());
                     out.flush();
                 }
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.severe("Ошибка сервера: " + e.getMessage());
         }
     }
 
     //TODO перемудрил - разгрести
     private User handshake(String message) throws AuthException {
         final String[] preparedMsg = message.split(" ");
+        logger.info("команда от клиента: " + preparedMsg[0]);
         if (preparedMsg.length != 3) {
             throw new AuthException("Wrong message");  //TODO объединить
         }

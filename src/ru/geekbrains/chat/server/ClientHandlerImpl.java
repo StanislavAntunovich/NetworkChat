@@ -7,6 +7,7 @@ import java.net.Socket;
 
 import static ru.geekbrains.chat.MessagesPatterns.MESSAGE_PATTERN;
 import static ru.geekbrains.chat.MessagesPatterns.REQUEST_ONLINE_USERS;
+import static ru.geekbrains.chat.server.Server.logger;
 
 public class ClientHandlerImpl implements ClientHandler {
 
@@ -34,11 +35,13 @@ public class ClientHandlerImpl implements ClientHandler {
                     if (message.startsWith("/")) {
                         handleCommand(message);
                     } else {
+                        //TODO убрать от сюда + выделить сообщение в отдельный класс
+                        logger.info(String.format("Клиент %s отправил всем сообщение \"%s\"", login, message));
+
                         server.sendBroadcastMessage(String.format(MESSAGE_PATTERN, login, message));
                     }
 
                 } catch (IOException ex) {
-                    ex.printStackTrace();
                     server.unSubscribe(login);
                     break;
                 }
