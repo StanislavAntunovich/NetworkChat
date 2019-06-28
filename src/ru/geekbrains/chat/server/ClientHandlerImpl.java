@@ -13,10 +13,8 @@ public class ClientHandlerImpl implements ClientHandler {
     private final Socket socket;
     private final DataInputStream in;
     private final DataOutputStream out;
-    private Thread receiverThread;
 
     private Server server;
-
     private String login;
 
     public ClientHandlerImpl(String login, Socket socket, Server server) throws IOException {
@@ -26,11 +24,13 @@ public class ClientHandlerImpl implements ClientHandler {
         this.in = new DataInputStream(socket.getInputStream());
         this.out = new DataOutputStream(socket.getOutputStream());
 
-        this.receiverThread = new Thread(() -> {
+    }
+
+    @Override
+    public void startHandling() {
             while (true) {
                 try {
                     String message = in.readUTF();
-                    System.out.println("income: " + message);
                     if (message.startsWith("/")) {
                         handleCommand(message);
                     } else {
@@ -43,10 +43,6 @@ public class ClientHandlerImpl implements ClientHandler {
                     break;
                 }
             }
-        });
-
-        receiverThread.setDaemon(true);
-        receiverThread.start();
     }
 
     @Override
