@@ -4,24 +4,24 @@ import ru.geekbrains.chat.server.User;
 import ru.geekbrains.chat.server.persistance.UserRepository;
 
 public class AuthJDBCServiceImpl implements AuthService {
-    private UserRepository<User, String> repository;
+    private UserRepository<Integer, User> repository;
 
-    public AuthJDBCServiceImpl(UserRepository<User, String> repository) {
+    public AuthJDBCServiceImpl(UserRepository<Integer, User> repository) {
         this.repository = repository;
     }
 
     @Override
     public boolean isAuthorized(User userCandidate) {
-        User user = repository.findUserByLogin(userCandidate.getLogin());
+        User user = repository.findByLogin(userCandidate.getLogin());
         return user != null && user.getPassword().equals(userCandidate.getPassword());
     }
 
     @Override
     public boolean addNewUser(User userCandidate) {
-        if (repository.findUserByLogin(userCandidate.getLogin()) != null) {
+        if (repository.findByLogin(userCandidate.getLogin()) != null) {
             return false;
         }
-        repository.addUser(userCandidate);
+        repository.insert(userCandidate);
         return true;
     }
 }
