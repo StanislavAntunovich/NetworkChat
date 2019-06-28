@@ -22,6 +22,8 @@ public class Controller implements IncomeMessageHandler {
     private Network network;
     private boolean isAuthorized;
 
+    public static int MESSAGES_TO_SHOW_COUNT = 100;  // предполагаем, что это можно будет менять в настройках
+
     @FXML
     private ListView<Message> listMessages;
 
@@ -38,7 +40,10 @@ public class Controller implements IncomeMessageHandler {
     private VBox panelMessages;
 
     @FXML
-    private Button bttnOk;
+    private Button bttnLogIn;
+
+    @FXML
+    private Button bttnSignUp;
 
     @FXML
     private Button bttnCancel;
@@ -71,8 +76,9 @@ public class Controller implements IncomeMessageHandler {
 
         bttnSendMessage.setOnAction(this::sendMessage);
         txtMessageInput.setOnAction(this::sendMessage);
-        bttnOk.setOnAction(this::okBttnCLicked);
-        txtPassword.setOnAction(this::okBttnCLicked);
+        bttnLogIn.setOnAction(this::okBttnCLicked);
+        bttnSignUp.setOnAction(this::okBttnCLicked);
+//        txtPassword.setOnAction(this::okBttnCLicked);
         bttnCancel.setOnAction(this::cancelBttnClicked);
 
         setAuthorized(false);
@@ -102,10 +108,11 @@ public class Controller implements IncomeMessageHandler {
         panelMessages.setManaged(isAuthorized);
     }
 
-    public boolean authorize(String login, String password) {
+    public boolean authorize(String login, String password, String action) {
         try {
-            //TODO:
-            network.authorize(login, password);
+            network.authorize(login, password, action);
+
+
         } catch (AuthException e) {
             showError("Authorization ERROR", e.getMessage());
             return false;
@@ -113,7 +120,6 @@ public class Controller implements IncomeMessageHandler {
             e.printStackTrace();
             return false;
         }
-
         return true;
     }
 
@@ -128,7 +134,9 @@ public class Controller implements IncomeMessageHandler {
             String login = txtLogin.getText();
             String password = txtPassword.getText();
 
-            setAuthorized(authorize(login, password));
+            String action = ((Button) event.getTarget()).getText();
+
+            setAuthorized(authorize(login, password, action));
 
             network.requestOnlineUsersList();
 
@@ -156,9 +164,14 @@ public class Controller implements IncomeMessageHandler {
     }
 
     @Override
-    public void handleMessage(String from, String message) {
-        final String messageFrom = from.equals(network.getLogin()) ? "Вы" : from;
-        Platform.runLater(() -> messages.add(new Message(messageFrom, message)));
+    public void handleMessage(Message message) {
+        if (message.getUser().equals(network.getLogin())) {
+            message.setUser("Вы");
+        }
+        Platform.runLater(() -> {
+            messages.add(message);
+            listMessages.scrollTo(messages.size()-1);
+        });
     }
 
     @Override

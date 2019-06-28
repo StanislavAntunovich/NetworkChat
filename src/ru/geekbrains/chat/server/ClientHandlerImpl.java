@@ -30,6 +30,7 @@ public class ClientHandlerImpl implements ClientHandler {
             while (true) {
                 try {
                     String message = in.readUTF();
+                    System.out.println("income: " + message);
                     if (message.startsWith("/")) {
                         handleCommand(message);
                     } else {

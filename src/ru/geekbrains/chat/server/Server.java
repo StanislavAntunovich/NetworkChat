@@ -1,14 +1,17 @@
 package ru.geekbrains.chat.server;
 
 import ru.geekbrains.chat.AuthException;
+import ru.geekbrains.chat.server.persistance.UserRepository;
+import ru.geekbrains.chat.server.persistance.UserRepositoryImpl;
+import ru.geekbrains.chat.server.service.auth.AuthJDBCServiceImpl;
 import ru.geekbrains.chat.server.service.auth.AuthService;
-import ru.geekbrains.chat.server.service.auth.AuthServiceImpl;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Connection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,13 +20,13 @@ import static ru.geekbrains.chat.MessagesPatterns.*;
 
 public class Server {
 
-    public static void main(String[] args) {
-        new Server().startServer(7777);
+    public Server(Connection connection) {
+        UserRepository<User, String> repository = new UserRepositoryImpl(connection);
+        this.authService = new AuthJDBCServiceImpl(repository);
     }
 
-
     private boolean isOnline;
-    private AuthService authService = new AuthServiceImpl();
+    private AuthService authService;
 
     private Map<String, ClientHandler> clientHandlers = Collections.synchronizedMap(new HashMap<>());
 
@@ -33,7 +36,6 @@ public class Server {
         ClientHandler fromCli = clientHandlers.get(from);
         if (toCli != null) {
             toCli.sendMessage(String.format(MESSAGE_PATTERN, from, message));
-            fromCli.sendMessage(String.format(MESSAGE_PATTERN, from, message));
         } else {
             fromCli.sendMessage(String.format(USER_OFFLINE_PATTERN, to));
         }
@@ -64,8 +66,8 @@ public class Server {
 
                 String authMessage = in.readUTF();
                 try {
-                    User user = checkAuthentication(authMessage);
-                    out.writeUTF("/auth succeeded");
+                    User user = handshake(authMessage);
+                    out.writeUTF("/succeeded");
                     this.subscribe(user.getLogin(), new ClientHandlerImpl(user.getLogin(), candidateSocket, this));
 
                 } catch (AuthException e) {
@@ -80,12 +82,32 @@ public class Server {
         }
     }
 
-    private User checkAuthentication(String authMessage) throws AuthException {
-        String[] authParts = authMessage.split(" ");
-        if (!authParts[0].equals("/auth") || authParts.length != 3) {
-            throw new AuthException("Wrong auth message");
+    //TODO перемудрил - разгрести
+    private User handshake(String message) throws AuthException {
+        final String[] preparedMsg = message.split(" ");
+        if (preparedMsg.length != 3) {
+            throw new AuthException("Wrong message");  //TODO объединить
         }
-        User user = new User(authParts[1], authParts[2]);
+
+        if (preparedMsg[0].equals("/auth")) {
+            return checkAuthentication(preparedMsg);
+        } else if (preparedMsg[0].equals("/registration")) {
+            return registration(preparedMsg);
+        } else {
+            throw new AuthException("Wrong message");
+        }
+    }
+
+    private User registration(String[] message) throws AuthException {
+        User user = new User(message[1], message[2]);
+        if (!authService.addNewUser(user)) {
+            throw new AuthException("Login busy");
+        }
+        return user;
+    }
+
+    private User checkAuthentication(String[] authMessage) throws AuthException {
+        User user = new User(authMessage[1], authMessage[2]);
         if (!authService.isAuthorized(user)) {
             throw new AuthException("Wrong login or password");
         }

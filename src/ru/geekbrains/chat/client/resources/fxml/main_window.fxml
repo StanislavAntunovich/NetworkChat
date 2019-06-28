@@ -7,7 +7,7 @@
       fx:id="mainLayout"
       xmlns:fx="http://javafx.com/fxml/1"
       xmlns="http://javafx.com/javafx/2.2"
-      fx:controller="ru.geekbrains.lesson4.client.Controller">
+      fx:controller="ru.geekbrains.chat.client.Controller">
 
     <VBox fx:id="panelMessages" VBox.vgrow="ALWAYS">
 
@@ -40,7 +40,8 @@
             <PasswordField fx:id="txtPassword"/>
         </HBox>
         <HBox>
-            <Button fx:id="bttnOk" text="Ok"/>
+            <Button fx:id="bttnSignUp" text="Sign Up"/>
+            <Button fx:id="bttnLogIn" text="Log In"/>
             <Button fx:id="bttnCancel" text="Cancel"/>
         </HBox>
 
